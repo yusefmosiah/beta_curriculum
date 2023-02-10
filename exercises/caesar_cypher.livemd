@@ -91,6 +91,7 @@ defmodule CaesarCypher do
     "ifmmp"
   """
   def encode(string) do
+    encode(string, 1)
   end
 
   @doc """
@@ -114,8 +115,35 @@ defmodule CaesarCypher do
     "ifmmp"
   """
   def encode(string, key) do
+    string
+    |> String.to_charlist()
+    |> Enum.map(fn char -> rem(char + key - ?a, 26) end)
+    |> Enum.map(fn char -> char + ?a end)
+    |> List.to_string()
   end
 end
+```
+
+```elixir
+Integer.mod(?a - ?a, 26)
+# ?z
+
+# ?a = 97. ?z = 122
+# 122 + 1 = 97
+
+encode = fn char, shift -> Integer.mod(char + shift - ?a, 26) end
+
+shift = 1
+encoded = encode.(?z, shift)
+
+decode = fn char, shift -> char + shift + ?a end
+
+decode.(encoded, 0)
+```
+
+```elixir
+CaesarCypher.encode("abcxyz")
+rem(123, 122)
 ```
 
 ## Mark As Completed
