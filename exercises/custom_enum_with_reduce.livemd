@@ -137,6 +137,19 @@ defmodule CustomEnum do
   """
   def sum(list_of_integers) do
     Enum.reduce(list_of_integers, &Kernel.+/2)
+    # Enum.reduce(list_of_integers, 0, &Kernel.+/2)
+    # Enum.reduce(list_of_integers, 0, fn elem, acc ->
+    #   elem + acc
+    # end)
+    # Enum.reduce(list_of_integers, fn elem, acc ->
+    #   elem + acc
+    # end)
+    # Enum.reduce(list_of_integers, 0, fn elem, acc ->
+    #   Kernel.+(elem, acc)
+    # end)
+    # Enum.reduce(list_of_integers, fn elem, acc ->
+    #   Kernel.+(elem, acc)
+    # end)
   end
 
   @doc """
@@ -151,10 +164,13 @@ defmodule CustomEnum do
     "Hello, World!"
   """
   def join(list_of_strings) do
-    # Enum.reduce(list_of_strings, & &2 <> &1)
-    Enum.reduce(list_of_strings, fn string, acc ->
-      acc <> string
-    end)
+    Enum.reduce(list_of_strings, &(&2 <> &1))
+    #  Enum.reduce(list_of_strings, fn string, acc ->
+    #   acc <> string
+    #   "#{acc} #{string}"
+    # end)
+
+    # Enum.reduce(list_of_strings, &Kernel.<>(&2, &1))
   end
 end
 ```
