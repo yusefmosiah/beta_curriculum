@@ -271,8 +271,8 @@ must also go after any generator whose variable they rely on. For example, `b` h
 defined here.
 
 ```elixir
-for a <- 1..45, rem(a, 5) === 0, rem(b, 5) === 0, b <- 1..5 do
-  [a, b]
+for a <- 1..45, rem(a, 5) == 0, b <- 1..5, rem(b, 5) == 0 do
+  {a, b}
 end
 ```
 
@@ -442,6 +442,11 @@ for char <- ["a", "b", "c"], into: "" do
   char
 end ==
   Enum.reduce(["a", "b", "c"], fn each, acc -> acc <> each end)
+
+for char <- ["a", "b", "c"], reduce: "" do
+  acc -> acc <> char
+end ==
+  Enum.reduce(["a", "b", "c"], fn each, acc -> acc <> each end)
 ```
 
 In the Elixir cell below, convert the following nested `Enum.map` into a comprehension.
@@ -466,7 +471,10 @@ end
 # end
 
 # # Enum.map(1..3, fn a -> Enum.map(1..3, fn b -> {a, b} end) end)
+# Enum.map(1..3, fn a -> Enum.map(1..3, fn b -> {a, b} end) end)
 ```
+
+## Comprehensions
 
 ## Mark As Completed
 
