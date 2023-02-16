@@ -162,7 +162,7 @@ defmodule TagTest do
   @moduletag :my_module_tag
   test "failing test" do
     assert false
-  end
+  end2
 end
 
 ExUnit.run()
