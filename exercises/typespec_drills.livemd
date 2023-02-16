@@ -247,6 +247,17 @@ defmodule FunctionSpecs do
 end
 ```
 
+```elixir
+defmodule Specs do
+  @spec addi(integer, integer) :: integer
+  def addi(integer1, integer2) do
+    integer1 + integer2
+  end
+end
+
+Specs.addi(1.2, 2.3)
+```
+
 ## Custom Types
 
 Implement the following custom `@type`s in the module below based on the comment describing them.
