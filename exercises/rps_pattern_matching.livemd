@@ -105,8 +105,26 @@ defmodule RockPaperScissorsPatternMatching do
     iex> RockPaperScissorsPatternMatching.play(:scissors, :scissors)
     "draw!"
   """
-  def play(guess1, guess2) do
-  end
+
+  # def play(:rock, :paper), do: "paper beats rock!"
+  # def play(:rock, :scissors), do: "rock beats scissors!"
+
+  # def play(:paper, :rock), do: "paper beats rock!"
+  # def play(:paper, :scissors), do: "scissors beats paper!"
+
+  # def play(:scissors, :rock), do: "rock beats scissors!"
+  # def play(:scissors, :paper), do: "scissors beats paper!"
+  # def play(play, play), do: "draw!"
+
+  def play(:rock, :paper), do: "paper beats rock!"
+  def play(:rock, :scissors), do: "rock beats scissors!"
+
+  def play(:paper, :rock), do: play(:rock, :paper)
+  def play(:paper, :scissors), do: "scissors beats paper!"
+
+  def play(:scissors, :rock), do: play(:rock, :scissors)
+  def play(:scissors, :paper), do: play(:paper, :scissors)
+  def play(play, play), do: "draw!"
 end
 ```
 
