@@ -140,7 +140,12 @@ We can use the match operator anytime we have a value bound to a parameter or va
 Create a `case` statement that will return the first element in a 2 element tuple, or the first element in 2 element a list.
 
 ```elixir
+data = [1, 2]
 
+case data do
+  {first, _second} -> first
+  [first, _second] -> first
+end
 ```
 
 Use pattern matching to ensure the `Check.must_have_elements!/1` function returns true when called with a list that has more than one element and otherwise causes a [FunctionClauseError](https://hexdocs.pm/elixir/FunctionClauseError.html).
@@ -174,7 +179,9 @@ defmodule Check do
       iex> Check.must_have_elements!([])
       ** (FunctionClauseError) no function clause matching in Check.must_have_elements!/1
   """
-  def must_have_elements!(list) do
+  def must_have_elements!([]), do: raise(FunctionClauseError)
+
+  def must_have_elements!(_list) do
     true
   end
 end
@@ -279,8 +286,9 @@ defmodule Greeter do
       iex> Greeter.hello(["Swamy", "Jeff", "Jeremy"])
       "Hello everyone!"
   """
-  def hello(names) do
-  end
+  def hello([name]), do: "Hi #{name}!"
+  def hello([name1, name2]), do: "Hi #{name1}, Hello #{name2}!"
+  def hello(_names), do: "Hello everyone!"
 end
 ```
 
@@ -329,8 +337,26 @@ defmodule Converter do
 
   """
   def to_named_strings(integers) do
+    integers
+    |> Enum.flat_map(&Integer.digits(&1))
+    |> Enum.map(fn
+      0 -> "zero"
+      1 -> "one"
+      2 -> "two"
+      3 -> "three"
+      4 -> "four"
+      5 -> "five"
+      6 -> "six"
+      7 -> "seven"
+      8 -> "eight"
+      9 -> "nine"
+    end)
   end
 end
+```
+
+```elixir
+Converter.to_named_strings([1, 2, 3, 8, 9, 10])
 ```
 
 ### Your Turn
@@ -356,7 +382,12 @@ end)
 </details>
 
 ```elixir
+list = [{:double, 2}, {:halve, 10}, {:double, 4}]
 
+Enum.map(list, fn
+  {:double, n} -> n * 2
+  {:halve, n} -> div(n, 2)
+end)
 ```
 
 ## Pattern Matching Vs. If
@@ -483,7 +514,7 @@ actual = [1, 2, 3]
 We'll also use the pin operator when triggering control flow with pattern matching. For example, we might use it in a case statement.
 
 ```elixir
-pinned_value = 1
+pinned_value = 2
 
 case {:ok, 1} do
   {:ok, ^pinned_value} -> "clause 1"
@@ -525,7 +556,7 @@ actual = {"hello", "hi"}
 expected = {"hello"}
 actual = {"hello", "hi"}
 
-expected = actual
+^expected = actual
 ```
 
 ## Further Reading

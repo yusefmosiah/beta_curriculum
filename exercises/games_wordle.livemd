@@ -67,7 +67,19 @@ iex> Games.Wordle.feedback("aaabb", "xaaaa")
 
 Test and implement a `Games.Wordle` module in your [Games](./games_setup.livemd) project.
 
-<!-- livebook:{"break_markdown":true} -->
+```elixir
+word = "aaaaa"
+answer = "aaaaa"
+
+feedback = fn word, answer ->
+  word_chars = String.split(word, "", trim: true)
+  answer_chars = String.split(answer, "", trim: true)
+
+  Enum.map(word_chars, fn word_char ->
+    word_char == answer_char
+  end)
+end
+```
 
 ### Play
 
