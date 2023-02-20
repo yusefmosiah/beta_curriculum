@@ -273,7 +273,11 @@ end
 </details>
 
 ```elixir
-
+defimpl Sound, for: Dog do
+  def say(_dog) do
+    "Woof!"
+  end
+end
 ```
 
 ## Mark As Completed
