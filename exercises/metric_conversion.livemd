@@ -92,7 +92,26 @@ defmodule Metric do
     iex> Metric.convert({:kilometer, 10}, :centimeter)
     1000000
   """
-  def convert(from, to) do
+
+  def convert({:millimeter, amount}, to) do
+    convert({:kilometer, amount}, to) / 1_000_000
+  end
+
+  def convert({:centimeter, amount}, to) do
+    convert({:kilometer, amount}, to) / 100_000
+  end
+
+  def convert({:meter, amount}, to) do
+    convert({:kilometer, amount}, to) / 1000
+  end
+
+  def convert({:kilometer, amount}, to) do
+    case to do
+      :millimeter -> amount * 1_000_000
+      :centimeter -> amount * 100_000
+      :meter -> amount * 1000
+      :kilometer -> amount
+    end
   end
 end
 ```
