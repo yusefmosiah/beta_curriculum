@@ -139,6 +139,8 @@ end
 ```
 
 ```elixir
+## returns {:error, :invalid}
+
 game = %Game{
   team2_name: "Exersport",
   round1: %Game.Round{team1: 10, team2: 20},
