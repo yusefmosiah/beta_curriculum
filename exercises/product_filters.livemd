@@ -238,6 +238,12 @@ defmodule Products do
   Filter products by :name, :min, :max, and :category.
   The name filter should be case insensitive and handle partial matches.
   """
+  def filter(products, filters) do
+    for product <- products,
+        String.downcase(product.name) =~ String.downcase(filters[:name]) do
+      product
+    end
+  end
 
   def check?({:min, min}, product), do: min <= product.price
   def check?({:max, max}, product), do: product.price <= max
@@ -272,7 +278,6 @@ defmodule Products do
     |> filter_partial_name(filters[:name])
     |> filter_category(filters[:category])
     |> filter_min_price(filters[:min])
-    # |> IO.inspect()
     |> filter_max_price(filters[:max])
   end
 

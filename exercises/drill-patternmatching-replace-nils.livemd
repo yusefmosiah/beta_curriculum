@@ -63,9 +63,37 @@ defmodule ReplaceNils do
 
   @doc """
   replace nil values in the first list with values from the second list in the same position.
+
+  ## Examples:
+
+  iex> ReplaceNils.replace(
+  ...>[1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 
+  ...>[nil, nil, nil, nil, nil, nil, nil, nil, nil, nil]
+  ...>)
+  [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+
+  iex> ReplaceNils.replace(
+  ...>[nil, nil, nil, nil, nil, nil, nil, nil, nil, nil], 
+  ...>[:a, :b, :c, :d, :e, :f, :g, :h, :i, :j]
+  ...>)
+  [:a, :b, :c, :d, :e, :f, :g, :h, :i, :j]
+
+  iex> ReplaceNils.replace(
+  ...>[1, 2, 3, nil, nil, 6, 7, nil, 9, 10], 
+  ...>[:a, :b, :c, :d, :e, :f, :g, :h, :i, :j]
+  ...>)
+  [1, 2, 3, :d, :e, 6, 7, :h, 9, 10]
+
+  iex> input1 = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+  iex> input2 = [:a, :b, :c, :d, :e, :f, :g, :h, :i, :j]
+  iex> ReplaceNils.replace(input1, input2)
+  [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
   """
-  def replace(input1, input2) do
-    nil
+  def replace(optionals, nonnils) do
+    Enum.zip_with(optionals, nonnils, fn
+      nil, nonnil -> nonnil
+      unwrapped, _nonnil -> unwrapped
+    end)
   end
 end
 ```
@@ -187,6 +215,56 @@ form
 ```
 
 ## Commit Your Progress
+
+```elixir
+# list = [1, 2, :a, [:list], "string", %{key: "value"}, {1, 10}]
+# #head of list
+# #tail of list
+
+# 1 = hd(list)
+# tl(list)
+
+# [head | tail] = list
+# head
+# tail
+
+# [head | tail] = [1, 2, :a, [:list], "string", %{key: "value"}, {1, 10}]
+# head
+# tail
+
+[a, b, c, d, e, f, g] = [
+  1,
+  2,
+  :a,
+  [:list],
+  "string",
+  %{key: "value"},
+  {"really long string", "even longer really long string"}
+]
+
+[a, b, c] = [1, 2, 3]
+
+list = [8, 9, 10]
+
+[h, i, j] = list
+
+# how do i turn g into g1 and g2?
+
+g = {"really long string", "even longer really long string"}
+{"really long string", "even longer really long string"} = g
+{g1, g2} = g
+
+# 1. bind variable to literal
+m = %{key: "value"}
+# 2. flip sides of = match operator
+%{key: "value"} = m
+# 3. assign variable to value
+%{key: v1} = m
+
+String.upcase(v1)
+String.split(v1, "")
+# capital_g = {String.upcase(g1), String.upcase(g2)}
+```
 
 Run the following in your command line from the curriculum folder to track and save your progress in a Git commit.
 Ensure that you do not already have undesired or unrelated changes by running `git status` or by checking the source control tab in Visual Studio Code.

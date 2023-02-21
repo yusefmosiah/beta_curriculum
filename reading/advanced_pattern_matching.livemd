@@ -334,6 +334,16 @@ Create a `Converter` module which uses pattern matching with enumeration and mul
 ```elixir
 defmodule Converter do
   @doc """
+  to_named_strings/1 takes a list of integers and returns a list of strings representing the integers in English.
+
+  This implementation using Enum.flat_map and Integer.digits also stringifies integers >= 10.
+  ## Examples:
+
+    iex> Converter.to_named_strings([1, 3, 8, 0, 9])
+    ["one", "three", "eight", "zero", "nine"]
+
+    iex> Converter.to_named_strings([2, 3, 2, 7, 6, 5, 8, 2])
+    ["two", "three", "two", "seven", "six", "five", "eight", "two"]
 
   """
   def to_named_strings(integers) do
@@ -357,6 +367,8 @@ end
 
 ```elixir
 Converter.to_named_strings([1, 2, 3, 8, 9, 10])
+Converter.to_named_strings([1, 3, 8, 0, 9])
+Converter.to_named_strings([2, 3, 2, 7, 6, 5, 8, 2])
 ```
 
 ### Your Turn
@@ -380,6 +392,11 @@ end)
 ```
 
 </details>
+
+```elixir
+f = fn map = %{a: one} -> map end
+f.(%{a: 2})
+```
 
 ```elixir
 list = [{:double, 2}, {:halve, 10}, {:double, 4}]
@@ -525,11 +542,11 @@ end
 If we don't pin the value, the bound variable will be treated as though we were re-binding the variable, and the first case clause will always match.
 
 ```elixir
-pinned_value = 1
+pinned_value = 2
 
 # despite being 2, not 1, clause 1 is triggered because we didn't pin the value.
 case {:ok, 2} do
-  {:ok, pinned_value} -> "clause 1"
+  {:ok, ^pinned_value} -> "clause 1"
   {:ok, generic_value} -> "clause 2"
 end
 ```
