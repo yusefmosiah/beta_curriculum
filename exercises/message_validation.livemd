@@ -132,10 +132,14 @@ defmodule Message do
     message
   end
 
-  def send(%Message{body: message}) when is_binary(message) do
-    message
+  def send(%Message{body: body}) when is_binary(body) do
+    body
   end
 end
+```
+
+```elixir
+Message.send(%{body: "map sending msg"})
 ```
 
 ## Mark As Completed
