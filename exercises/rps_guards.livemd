@@ -92,7 +92,7 @@ defmodule RockPaperScissorsGuards do
     iex> RockPaperScissorsGuards.play(:scissors, :scissors)
     "draw!"
   """
-  def play(guess1, guess2) do
+  def play(guess1, guess2) when guess1 == :rock and guess2 == :guess2 do
   end
 end
 ```

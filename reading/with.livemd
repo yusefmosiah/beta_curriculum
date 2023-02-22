@@ -18,6 +18,20 @@ Mix.install([
 
 Ensure you type the `ea` keyboard shortcut to evaluate all Elixir cells before starting. Alternatively you can evaluate the Elixir cells as you read.
 
+<!-- livebook:{"break_markdown":true} -->
+
+```mermaid
+flowchart
+  1[pre-condition]
+  2[pre-condition]
+  3[pre-condition]
+  4[instruction]
+  with --> 1
+  1 --> 2
+  2 --> 3
+  3 --> 4
+```
+
 ## With
 
 `with` is often used with pattern matching to create "happy path" code.
