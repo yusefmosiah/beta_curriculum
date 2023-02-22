@@ -219,17 +219,13 @@ end
 ```elixir
 defimpl Character, for: Wizard do
   def can_attack?(%Wizard{}, {cx, cy}, {tx, ty}) do
-    vertical? = fn cx, tx -> cx == tx end
-    horizontal? = fn cy, ty -> cy == ty end
-    diagonal? = fn {cx, cy}, {tx, ty} -> abs(tx - cx) == abs(ty - cy) end
+    vertical? = cx == tx
+    horizontal? = cy == ty
+    diagonal? = abs(tx - cx) == abs(ty - cy)
 
-    vertical?.(cx, tx) or horizontal?.(cy, ty) or diagonal?.({cx, cy}, {tx, ty})
+    vertical? or horizontal? or diagonal?
   end
 end
-```
-
-```elixir
-
 ```
 
 ## Custom Character (BONUS)
@@ -244,25 +240,6 @@ defimpl Character, for: Knight do
     abs(cx - tx) == 1 and abs(cy - ty) == 2
   end
 end
-```
-
-```elixir
-# if starting pos: x,y
-#  -> x+/-2, y+/-1
-#  -> x+/-1, y+/-2
-
-# atk = fn {tx, ty}, {cx, cy}
-# -> abs(cx - tx) == 2 and abs(cy - ty) == 1
-#   -> abs(cx - tx) == 1 and abs(cy - ty) == 2
-#   end
-```
-
-```elixir
-# if 4,4
-# -> 6 or 2, 5 or 3 -> {6,5}, {2,3}, {6,3}, {2,3}
-# -> 5 or 3, 6 or 2 -> {5, 6}, {5, 2}, {3, 6}, {3, 2}
-
-# {6,5}, {2,3}, {6,3}, {2,3}
 ```
 
 Create your own customer character with an attack pattern than you decide on. It should not
