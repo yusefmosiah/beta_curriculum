@@ -193,7 +193,13 @@ end
 </details>
 
 ```elixir
+defimpl Adder, for: List do
+  def add(string1, string2) do
+    string1 ++ string2
+  end
+end
 
+Adder.add(["hello, "], ["world"])
 ```
 
 ## Protocols With Structs
@@ -246,6 +252,12 @@ Sound.say(%Cat{mood: :angry})
 ```elixir
 defmodule Dog do
   defstruct []
+
+  defimpl Sound, for: Dog do
+    def say(cat) do
+      "Woof!"
+    end
+  end
 end
 ```
 
