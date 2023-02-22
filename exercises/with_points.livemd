@@ -76,8 +76,8 @@ Enter your solution below.
 ```elixir
 defmodule Game do
   # how do we enforce nested keys?
-  # @enforce_keys [:team1_name, :team2_name, :round1, :round2, :round3]
-  defstruct [:team1_name, :team2_name, :round1, :round2, :round3]
+  @enforce_keys [:team1_name, :team2_name, :round1, :round2, :round3]
+  defstruct @enforce_keys
 end
 
 defmodule Game.Round do
