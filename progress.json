@@ -157,7 +157,7 @@
   "supervisors_reading": false,
   "save_game_exercise": false,
   "document_tools_exercise": false,
-  "factorial_exercise": false,
+  "factorial_exercise": true,
   "livebook_reading": true,
   "filter_values_by_type_exercise": false,
   "book_search_exercise": false,
@@ -202,7 +202,7 @@
   "recursion_reading": false,
   "in-memory_todo_list_exercise": false,
   "capstone_project_guide_reading": false,
-  "fibonacci_exercise": true,
+  "fibonacci_exercise": false,
   "typespec_drills_exercise": false,
   "custom_assertions_exercise": false,
   "atoms_reading": true

@@ -69,9 +69,16 @@ defmodule Factorial do
     iex> Factorial.of(10)
     3628800
   """
+  def of(1), do: 1
+
   def of(n) do
+    n * of(n - 1)
   end
 end
+```
+
+```elixir
+Factorial.of(30000) |> Integer.digits() |> Enum.count()
 ```
 
 ## Mark As Completed

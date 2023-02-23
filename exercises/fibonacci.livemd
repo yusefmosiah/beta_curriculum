@@ -93,6 +93,7 @@ defmodule Fibonacci do
   # def of(0), do: 0
   # def of(1), do: 1
   # def of(n) do
+  #   IO.inspect("fib(#{n})")
   #   of(n - 1) + of(n - 2)
   # end
 
@@ -104,17 +105,18 @@ defmodule Fibonacci do
   #   of(n - 1, of(n - 2, acc))
   # end
 
-  def of(0), do: 0
-  def of(1), do: 1
   def of(n), do: of(n, 0, 1)
+  # def of(n, last \\ 0, prev \\ 1)
+  defp of(0, last, _prev), do: last
 
-  def of(0, last, _prev), do: last
-  def of(n, last, prev), do: of(n - 1, last + prev, last)
+  defp of(n, last, prev) do
+    of(n - 1, last + prev, last)
+  end
 end
 ```
 
 ```elixir
-Fibonacci.of(400_003)
+Fibonacci.of(1_000_000) |> Integer.digits() |> Enum.count()
 ```
 
 ## Mark As Completed
