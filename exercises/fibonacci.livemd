@@ -89,13 +89,32 @@ defmodule Fibonacci do
     iex> Fibonacci.of(20)
     6765
   """
+
+  # def of(0), do: 0
+  # def of(1), do: 1
+  # def of(n) do
+  #   of(n - 1) + of(n - 2)
+  # end
+
+  # def of(n, acc \\ 0)
+  # def of(0, acc), do: acc
+  # def of(1, acc), do: acc + 1
+
+  # def of(n, acc) do
+  #   of(n - 1, of(n - 2, acc))
+  # end
+
   def of(0), do: 0
   def of(1), do: 1
+  def of(n), do: of(n, 0, 1)
 
-  def of(n) do
-    of(n - 1) + of(n - 2)
-  end
+  def of(0, last, _prev), do: last
+  def of(n, last, prev), do: of(n - 1, last + prev, last)
 end
+```
+
+```elixir
+Fibonacci.of(400_003)
 ```
 
 ## Mark As Completed
