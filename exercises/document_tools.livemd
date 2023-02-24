@@ -70,21 +70,25 @@ defmodule Document do
   @doc ~S"""
   Count the number of words in a document.
 
-  ## Examples
+    ## Examples
 
-      Any sequence of characters separated by a space will be considered a word.
+        Any sequence of characters separated by a space will be considered a word.
 
-      iex> File.write("word_count.txt", "one two three")
-      iex> Document.word_count("word_count.txt")
-      3
+        iex> File.write("word_count.txt", "one two three")
+        iex> Document.word_count("word_count.txt")
+        3
 
-      Ensure your solution ignores newline characters.
+        Ensure your solution ignores newline characters.
 
-      iex> File.write("word_count.txt", "one\ntwo\nthree")
-      iex> Document.word_count("word_count.txt")
-      3
+        iex> File.write("word_count.txt", "one\ntwo\nthree")
+        iex> Document.word_count("word_count.txt")
+        3
   """
   def word_count(file_name) do
+    file_name
+    |> File.read!()
+    |> String.split([" ", "\n"], trim: true)
+    |> Enum.count()
   end
 
   @doc ~S"""
@@ -97,6 +101,10 @@ defmodule Document do
       3
   """
   def line_count(file_name) do
+    file_name
+    |> File.read!()
+    |> String.split("\n", trim: true)
+    |> Enum.count()
   end
 
   @doc ~S"""
@@ -110,6 +118,16 @@ defmodule Document do
       "1. one\n2. two\n3. three"
   """
   def add_line_numbers(file_name) do
+    file_with_line_numbers =
+      File.read!(file_name)
+      |> String.split("\n", trim: true)
+      |> Enum.with_index(fn line, index ->
+        "#{index + 1}. #{line}"
+      end)
+      |> Enum.join("\n")
+
+    File.write!(file_name, file_with_line_numbers)
+    file_with_line_numbers
   end
 end
 ```
