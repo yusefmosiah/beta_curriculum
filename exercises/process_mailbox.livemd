@@ -72,8 +72,21 @@ defmodule Mailbox do
       iex> send(counter_process, {:mail, "Hello!"})
   """
   def loop(state \\ []) do
+    receive do
+      {:mail, mail} ->
+        new_state = [mail | state]
+        IO.inspect(new_state)
+        loop(new_state)
+    end
   end
 end
+```
+
+```elixir
+pid = spawn(Mailbox, :loop, [])
+send(pid, {:mail, "mail1"})
+send(pid, {:mail, "new mail"})
+# :sys.get_state(pid)
 ```
 
 ## Mark As Completed
