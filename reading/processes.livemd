@@ -258,16 +258,29 @@ In the Elixir cell below, spawn a new process and send it a message `{:hello, "w
 `IO.puts` the message's payload where `"world"` is the payload.
 
 ```elixir
+pro = fn ->
+  receive do
+    :louder -> "world" |> String.upcase() |> IO.puts()
+  end
+end
+
 Kino.Process.render_seq_trace(fn ->
   pid =
     spawn(fn ->
       receive do
-        {:hello, msg} -> IO.puts(msg)
+        {:hello, msg} ->
+          pid2 = spawn(pro)
+          send(self(), {:louder, pid2})
       end
     end)
 
   send(pid, {:hello, "world"})
 end)
+
+receive do
+  msg -> IO.puts(msg)
+  {:louder, pid2} -> send(pid2, :louder)
+end
 ```
 
 ## State
