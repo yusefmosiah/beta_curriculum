@@ -50,6 +50,10 @@ end
 Implement the `TodoList` module as documented. You may choose any file for your persistence mechanism.
 
 ```elixir
+File.rm("todolist")
+```
+
+```elixir
 defmodule TodoList do
   @moduledoc """
   Documentation for `TodoList`
@@ -63,6 +67,15 @@ defmodule TodoList do
       []
   """
   def list do
+    case File.read("todolist") do
+      {:ok, binary} ->
+        binary |> :erlang.binary_to_term()
+
+      {:error, _error} ->
+        content = [] |> :erlang.term_to_binary()
+        File.write!("todolist", content)
+        content |> :erlang.binary_to_term()
+    end
   end
 
   @doc """
@@ -77,9 +90,11 @@ defmodule TodoList do
       iex> TodoList.add("task 1")
       iex> TodoList.add("task 2")
       iex> TodoList.list()
-      ["task 2", "task 1"]
+      ["task 1", "task 2"]
   """
   def add(item) do
+    content = [item | list()] |> Enum.reverse() |> :erlang.term_to_binary()
+    File.write!("todolist", content)
   end
 
   @doc """
@@ -93,8 +108,22 @@ defmodule TodoList do
       []
   """
   def complete(item) do
+    content = list() -- [item]
+    File.write!("todolist", content |> :erlang.term_to_binary())
+    content
   end
 end
+```
+
+```elixir
+# TodoList.list()
+# TodoList.add("add cryptography to save game exercise")
+TodoList.list()
+# TodoList.complete("add cryptography to save game exercise")
+# TodoList.add("eat lunch")
+# TodoList.add("play chess")
+# TodoList.add("make pr replacing doctests with tests")
+# TodoList.complete("extra")
 ```
 
 ## Mark As Completed

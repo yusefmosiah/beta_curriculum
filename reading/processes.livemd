@@ -212,7 +212,7 @@ Spawn a linked process and crash this Elixir cell below.
 Comment out your solution when complete to avoid continuously crashing the livebook!
 
 ```elixir
-
+# spawn_link(fn -> raise "ha" end)
 ```
 
 ## Message Passing
@@ -258,7 +258,29 @@ In the Elixir cell below, spawn a new process and send it a message `{:hello, "w
 `IO.puts` the message's payload where `"world"` is the payload.
 
 ```elixir
+pro = fn ->
+  receive do
+    :louder -> "world" |> String.upcase() |> IO.puts()
+  end
+end
 
+Kino.Process.render_seq_trace(fn ->
+  pid =
+    spawn(fn ->
+      receive do
+        {:hello, msg} ->
+          pid2 = spawn(pro)
+          send(self(), {:louder, pid2})
+      end
+    end)
+
+  send(pid, {:hello, "world"})
+end)
+
+receive do
+  msg -> IO.puts(msg)
+  {:louder, pid2} -> send(pid2, :louder)
+end
 ```
 
 ## State
@@ -363,6 +385,7 @@ defmodule Counter do
 
     receive do
       :increment -> loop(state + 1)
+      :decrement -> loop(state - 1)
     end
   end
 end
@@ -373,7 +396,7 @@ counter_process = spawn(fn -> Counter.loop() end)
 You should be able to send a `:decrement` message to a spawned `Counter`. Uncomment and evaluate the code below to test your solution.
 
 ```elixir
-# send(counter_process, :decrement)
+send(counter_process, :decrement)
 ```
 
 ## Mark As Completed

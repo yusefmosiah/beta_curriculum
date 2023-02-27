@@ -18,6 +18,10 @@ Mix.install([
 
 Mastery assignments are bonus projects designed to incorporate curriculum concepts at an advanced level. You have complete freedom with how you complete mastery assignments, and may change requirements as you see fit. Each mastery assignment serves as an independent project you may choose to include on your portfolio of projects.
 
+```elixir
+
+```
+
 ## File Search
 
 Create a `FileSearch` module which can recursively search files in all nested folders.
@@ -55,6 +59,39 @@ end
 Implement the `FileSearch` module as documented.
 
 ```elixir
+File.ls!()
+
+# files_at_top_level =
+#   File.ls!()
+#   |> Enum.filter(&(!File.dir?(&1)))
+
+# files_at_second_level =
+#   File.ls!()
+#   |> Enum.filter(&(File.dir?(&1) and &1 != ".Trash"))
+
+# 1. if there exist files in directory, add files to list
+# for each directory in dir, do 1. to directory
+
+defmodule X do
+  def add(path) do
+    Enum.map(File.ls!(path), fn elem ->
+      if File.dir?(elem) do
+        IO.inspect(elem)
+        # add(Path.absname(elem))
+        elem |> String.upcase()
+      else
+        elem
+      end
+    end)
+  end
+end
+
+Path.absname("/Users/wiz/Documents/wiz/code") |> X.add() |> List.flatten()
+
+# Path.absname("")
+```
+
+```elixir
 defmodule FileSearch do
   @moduledoc """
   Documentation for FileSearch
@@ -77,7 +114,31 @@ defmodule FileSearch do
 
   ["file1.txt", "file2.txt", "file3.txt", "file4.txt"]
   """
+
+  # def all(path) do
+  #   File.ls!(path)
+  #   |> Enum.map(fn file_or_folder ->
+  #     path = Path.join(path, file_or_folder)
+
+  #     if File.dir?(path) do
+  #       all(path)
+  #     else
+  #       file_or_folder
+  #     end
+  #   end)
+  # end
+
   def all(folder) do
+    File.ls!(folder)
+    |> Enum.map(fn file_or_folder ->
+      path = Path.join(folder, file_or_folder)
+
+      if File.dir?(path) and File.regular?(path) do
+        all(path)
+      else
+        file_or_folder
+      end
+    end)
   end
 
   @doc """
@@ -110,6 +171,12 @@ defmodule FileSearch do
   def by_extension(folder) do
   end
 end
+```
+
+```elixir
+path = File.ls!("/")
+# File.cwd!
+FileSearch.all(path)
 ```
 
 ### Configure Project As A Script

@@ -117,8 +117,20 @@ defmodule Lucas do
     iex> Lucas.number(20)
     15127
   """
-  def number(n) do
-  end
+
+  # def number(0), do: 2
+  # def number(1), do: 1
+
+  # def number(n) do
+  #   number(n - 1) + number(n - 2)
+  # end
+
+  def number(0), do: 2
+  def number(1), do: 1
+  def number(n), do: number(n, 2, 1)
+
+  def number(0, last, _prev), do: last
+  def number(n, last, prev), do: number(n - 1, last + prev, last)
 
   @doc """
   Generate a list of lucas numbers with the given length.
@@ -140,9 +152,42 @@ defmodule Lucas do
     iex> Lucas.sequence(10)
     [2, 1, 3, 4, 7, 11, 18, 29, 47, 76]
   """
-
   def sequence(length) do
+    Enum.map(1..length, &number(&1 - 1))
   end
+
+  def sequence(length) when length == 1 do
+    [2]
+  end
+
+  def sequence(length) when length == 2 do
+    [2, 1]
+  end
+
+  def sequence(length) when length > 2 do
+    {_, _, list} =
+      Enum.reduce(2..(length - 1), {2, 1, [1, 2]}, fn each, {prev2, prev1, list} ->
+        current = prev2 + prev1
+        {prev1, current, [current | list]}
+      end)
+
+    Enum.reverse(list)
+  end
+end
+```
+
+```elixir
+fib = [1, 0]
+fib = [hd(fib) + hd(tl(fib)) | fib]
+
+fib = fn 
+0, _f -> 0
+1, _f -> 1
+n, f -> f.(fib)
+
+
+def fib(n) do
+  [hd(fib(n-1)) + hd(tl(fib(n-2))) | fib]
 end
 ```
 

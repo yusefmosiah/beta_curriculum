@@ -304,6 +304,14 @@ note_book = GenericServer.start(NoteBook)
 
 ```elixir
 defmodule NoteBook do
+  # callbacks
+  def init(), do: []
+
+  def handle_call({:add_note, note}, state) do
+    new_state = [note | state] |> Enum.reverse()
+    response = {:ok, new_state}
+    {response, new_state}
+  end
 end
 ```
 
@@ -442,7 +450,18 @@ end
 </details>
 
 ```elixir
+defmodule Journal do
+  use GenServer
+  @impl true
+  def init(_opts), do: {:ok, []}
 
+  @impl true
+  def handle_call({:add_entry, entry}, _from, state) do
+    new_state = [entry | state]
+    response = {:ok, new_state}
+    {:reply, response, new_state}
+  end
+end
 ```
 
 ## Client / Server APIs
