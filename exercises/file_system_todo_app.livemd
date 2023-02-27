@@ -90,12 +90,10 @@ defmodule TodoList do
       iex> TodoList.add("task 1")
       iex> TodoList.add("task 2")
       iex> TodoList.list()
-      ["task 2", "task 1"]
+      ["task 1", "task 2"]
   """
   def add(item) do
-    file = File.read!("todolist") |> :erlang.binary_to_term()
-
-    content = (file ++ [item]) |> :erlang.term_to_binary()
+    content = [item | list()] |> Enum.reverse() |> :erlang.term_to_binary()
     File.write!("todolist", content)
   end
 
@@ -110,8 +108,7 @@ defmodule TodoList do
       []
   """
   def complete(item) do
-    file = File.read!("todolist") |> :erlang.binary_to_term()
-    content = file -- [item]
+    content = list() -- [item]
     File.write!("todolist", content |> :erlang.term_to_binary())
     content
   end
