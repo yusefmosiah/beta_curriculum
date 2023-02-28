@@ -126,7 +126,8 @@ defmodule TrafficLightServer do
   @doc """
   Start a TrafficLightServer linked to the current caller process.
   """
-  def start_link(opts) do
+  def start_link(_opts) do
+    GenServer.start_link(__MODULE__, [])
   end
 
   @doc """
@@ -134,12 +135,36 @@ defmodule TrafficLightServer do
   :green -> :yellow -> :red
   """
   def transition(pid) do
+    GenServer.call(pid, :transition)
   end
 
   @doc """
   Get the `TrafficLightServer`'s current state.
   """
   def current_light(pid) do
+    GenServer.call(pid, :current_light)
+  end
+
+  @impl true
+  def init(_opts) do
+    {:ok, :green}
+  end
+
+  @impl true
+  def handle_call(:transition, _from, state) do
+    new_state =
+      case state do
+        :green -> :yellow
+        :yellow -> :red
+        :red -> :green
+      end
+
+    {:reply, new_state, new_state}
+  end
+
+  @impl true
+  def handle_call(:current_light, _from, state) do
+    {:reply, state, state}
   end
 end
 ```
@@ -318,6 +343,7 @@ defmodule TrafficGridServer do
       {:ok, pid}
   """
   def start_link(_opts) do
+    GenServer.start_link(__MODULE__, [])
   end
 
   @doc """
@@ -329,6 +355,7 @@ defmodule TrafficGridServer do
       [:yellow, :green, :green, :green, :green]
   """
   def transition(grid_pid) do
+    GenServer.call(grid_pid, :transition)
   end
 
   @doc """
@@ -340,8 +367,57 @@ defmodule TrafficGridServer do
       [:green, :green, :green, :green, :green]
   """
   def current_lights(grid_pid) do
+    GenServer.call(grid_pid, :current_lights)
+  end
+
+  @impl true
+  def init(_opts) do
+    pids =
+      for _ <- 1..5 do
+        {:ok, pid} = GenServer.start_link(TrafficLightServer, [])
+        pid
+      end
+
+    {:ok, {pids, _turn = 0}}
+  end
+
+  @impl true
+  def handle_call(:transition, _from, {pids, turn}) do
+    pid_to_turn = Enum.at(pids, turn)
+    TrafficLightServer.transition(pid_to_turn)
+    lights = Enum.map(pids, &TrafficLightServer.current_light/1)
+    turn = rem(turn + 1, length(pids))
+    {:reply, lights, {pids, turn}}
+  end
+
+  @impl true
+  def handle_call(:current_lights, _from, {pids, _turn} = state) do
+    lights = Enum.map(pids, &TrafficLightServer.current_light/1)
+    {:reply, lights, state}
   end
 end
+```
+
+```elixir
+{:ok, pid} = TrafficGridServer.start_link([])
+TrafficGridServer.current_lights(pid)
+Enum.map(1..16, fn _ -> TrafficGridServer.transition(pid) end)
+
+# TrafficGridServer.current_lights(pid)
+
+# {:ok, pid2} = TrafficLightServer.start_link([])
+#  transitioned_light = TrafficLightServer.transition(pid2)
+```
+
+```elixir
+l = [1, 2]
+
+Enum.at(l, 0)
+rem(4 + 1, 5)
+
+pids = 10
+lights = 7
+{pids, lights, turn = 0}
 ```
 
 ## Mark As Completed
