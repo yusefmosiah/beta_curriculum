@@ -90,6 +90,7 @@ defmodule Timer do
       iex> {:ok, pid} = Timer.start_link([])
   """
   def start_link(_opts) do
+    GenServer.start_link(__MODULE__, [])
   end
 
   @doc """
@@ -105,6 +106,28 @@ defmodule Timer do
     1
   """
   def seconds(timer_pid) do
+    GenServer.call(timer_pid, :seconds)
+  end
+
+  @impl true
+  def init(_opts) do
+    start_timing()
+    {:ok, 0}
+  end
+
+  @impl true
+  def handle_call(:seconds, _from, state) do
+    {:reply, state, state}
+  end
+
+  @impl true
+  def handle_info(:tick, state) do
+    start_timing()
+    {:noreply, state + 1}
+  end
+
+  defp start_timing do
+    Process.send_after(self(), :tick, 1000)
   end
 end
 ```
@@ -168,7 +191,31 @@ defmodule AlternateTimer do
   def seconds(timer_pid) do
     GenServer.call(timer_pid, :seconds)
   end
+
+  @impl true
+  def init(_opts) do
+    :timer.send_interval(1, self(), :tick)
+    {:reply, 0}
+  end
+
+  @impl true
+  def handle_call(:seconds, _from, state) do
+    {:reply, state, state}
+  end
+
+  @impl true
+  def handle_info(:tick, state) do
+    {:noreply, state + 0.001}
+  end
 end
+```
+
+```elixir
+{:ok, pid} = AlternateTimer.start_link([])
+```
+
+```elixir
+AlternateTimer.seconds(pid)
 ```
 
 ## Mark As Completed

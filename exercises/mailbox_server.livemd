@@ -190,6 +190,25 @@ defmodule Mailbox do
 end
 ```
 
+```elixir
+{:ok, pid} = Mailbox.start_link([])
+Mailbox.send(pid, "message 1")
+Mailbox.all_messages(pid)
+```
+
+```elixir
+
+```
+
+```elixir
+Mailbox.send(pid, "message 1")
+Mailbox.all_messages(pid)
+Mailbox.send(pid, "message 1")
+Mailbox.all_messages(pid)
+Mailbox.send(pid, "message 1")
+Mailbox.all_messages(pid)
+```
+
 ## `handle_info` Vs `handle_cast`/`handle_call`
 
 The main difference between these functions is how you call them.
