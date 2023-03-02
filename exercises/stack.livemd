@@ -58,40 +58,161 @@ Copy the code below into your `Stack` module.
 defmodule Stack do
   use GenServer
 
-  def start_link(_opts) do
+  # Client API
+  def start_link(opts) do
+    GenServer.start_link(__MODULE__, opts)
   end
 
   def push(pid, element) do
+    GenServer.call(pid, {:push, element})
   end
 
   def pop(pid) do
+    GenServer.call(pid, :pop)
   end
+
+  def get(pid) do
+    GenServer.call(pid, :get)
+  end
+
+  # Server callbacks
+  @impl true
+  def init(opts) do
+    state = opts[:state] || []
+    {:ok, state}
+  end
+
+  @impl true
+  def handle_call({:push, element}, _from, state) do
+    new_state = [element | state]
+    {:reply, new_state, new_state}
+  end
+
+  @impl true
+  def handle_call(:pop, _from, state) do
+    {head, tail} =
+      case state do
+        [] -> {[], []}
+        _ -> {hd(state), tl(state)}
+      end
+
+    {:reply, head, tail}
+  end
+
+  @impl true
+  def handle_call(:get, _from, state), do: {:reply, state, state}
 end
+```
+
+```elixir
+{:ok, pid} = Stack.start_link([])
+# Stack.push(pid, :element1)
+# Stack.push(pid, :element2)
+# Stack.push(pid, 3)
+# Stack.push(pid, :d)
+# Stack.push(pid, "e")
+# Stack.state(pid)
+Stack.pop(pid)
+# Stack.pop(pid)
+# Stack.pop(pid)
+# Stack.pop(pid)
+
+# Enum.map(1..100, fn n -> Stack.push(pid, n) end)
+# Enum.map(1..90, fn n -> Stack.pop(pid) end)
+# Stack.state(pid)
+```
+
+```elixir
+plates = []
+plates = [:blue_plate | plates]
+plates = [:red_plate | plates]
+plates = [:green_plate | plates]
+{plates, hd(plates), tl(plates)}
 ```
 
 Then copy the following code into the associated test file for the `Stack` module.
 
 ```elixir
+ExUnit.start(auto_run: false)
+
 defmodule StackTest do
   use ExUnit.Case
 
   describe "start_link/1" do
-    test "with no configuration"
-    test "with a default state"
+    test "with no configuration" do
+      {:ok, pid} = Stack.start_link([])
+      assert Stack.get(pid) == []
+    end
+
+    test "with a default state" do
+      {:ok, pid} = Stack.start_link(state: ["default", "state"])
+      assert Stack.get(pid) == ["default", "state"]
+    end
   end
 
   describe "push/2" do
-    test "an element onto an empty stack"
-    test "an element onto a stack with one element"
-    test "an element onto a stack with multiple elements"
+    test "an element onto an empty stack" do
+      {:ok, pid} = Stack.start_link([])
+      Stack.push(pid, :element1)
+      assert Stack.get(pid) == [:element1]
+    end
+
+    test "an element onto a stack with one element" do
+      {:ok, pid} = Stack.start_link([])
+      Stack.push(pid, :element1)
+      Stack.push(pid, :element2)
+      assert Stack.get(pid) == [:element2, :element1]
+    end
+
+    test "an element onto a stack with multiple elements" do
+      initial_state = [:element1, :element2, :element3, :element4]
+      {:ok, pid} = Stack.start_link(state: initial_state)
+      Stack.push(pid, :element5)
+
+      assert Stack.get(pid) == [:element5 | initial_state]
+    end
   end
 
   describe "pop/1" do
-    test "an empty stack"
-    test "a stack with one element"
-    test "a stack with multiple elements"
+    test "an empty stack" do
+      {:ok, pid} = Stack.start_link([])
+      assert Stack.pop(pid) == []
+      # assert_raise FunctionClauseError, "popped an empty stack error", fn ->
+      #   {:ok, pid} = Stack.start_link([])
+      #   Stack.pop(pid)
+      # end
+    end
+
+    test "a stack with one element" do
+      {:ok, pid} = Stack.start_link(state: ["one element"])
+      assert Stack.pop(pid) == "one element"
+    end
+
+    test "a stack with multiple elements" do
+      initial_state = [:element1, :element2, :element3, :element4]
+      {:ok, pid} = Stack.start_link(state: initial_state)
+      assert Stack.pop(pid) == :element1
+    end
+  end
+
+  describe "stack has correct element order" do
+    test "push x3 then pop x2 should equal list(first element pushed)" do
+      {:ok, pid} = Stack.start_link([])
+      Stack.push(pid, :first_element)
+      Stack.push(pid, :next_element)
+      Stack.push(pid, :third)
+      Stack.pop(pid)
+      Stack.pop(pid)
+      assert Stack.get(pid) == [:first_element]
+    end
   end
 end
+
+ExUnit.run()
+```
+
+```elixir
+hd([1])
 ```
 
 ## Bonus: GitHub Repository

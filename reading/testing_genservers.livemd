@@ -225,11 +225,11 @@ defmodule CountDown do
     {:ok, state}
   end
 
-  @impl true
-  def handle_call(:get_count, _from, state) do
-    # Implementation
-    {:reply, state, state}
-  end
+  # @impl true
+  # def handle_call(:get_count, _from, state) do
+  #   # Implementation
+  #   {:reply, state, state}
+  # end
 
   @impl true
   def handle_call(:decrement, _from, state) do
@@ -246,8 +246,8 @@ defmodule CounterTest do
   # implement your test
   test "decrement/1" do
     {:ok, pid} = CountDown.start_link([])
-    CountDown.decrement(pid)
-    assert CountDown.get_count(pid) == -1
+    assert CountDown.decrement(pid) == -1
+    # assert CountDown.get_count(pid) == -1
   end
 end
 

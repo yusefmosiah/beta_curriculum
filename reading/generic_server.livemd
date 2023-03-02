@@ -305,7 +305,7 @@ note_book = GenericServer.start(NoteBook)
 ```elixir
 defmodule NoteBook do
   # callbacks
-  def init(), do: []
+  def init, do: []
 
   def handle_call({:add_note, note}, state) do
     new_state = [note | state] |> Enum.reverse()
@@ -313,6 +313,13 @@ defmodule NoteBook do
     {response, new_state}
   end
 end
+```
+
+```elixir
+note_book = GenericServer.start(NoteBook)
+{:ok, ["new note 1"]} = GenericServer.call(note_book, {:add_note, "new note 1"})
+{:ok, ["new note 1", "new note 2"]} = GenericServer.call(note_book, {:add_note, "new note 2"})
+GenericServer.call(note_book, {:add_note, "new note 2"})
 ```
 
 ## GenServer
