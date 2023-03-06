@@ -144,6 +144,13 @@ end
 Implement the `Pokemon` GenServer and struct definition as documented below.
 
 ```elixir
+keys = [element: "element", field: "value", property: "quality"]
+{element, [field: value, property: quality] = } = Keyword.pop!(keys, :element)
+
+
+```
+
+```elixir
 defmodule Pokemon do
   @moduledoc """
   Pokemon Server
@@ -163,50 +170,92 @@ defmodule Pokemon do
   ## Examples
       iex> {:ok, pokemon} = Pokemon.start_link([pokemon: %Pokemon{name: "Charmander", type: :fire}])
   """
+
+  @type(type :: :fire, :grass, :water)
+  defstruct [:name, :type, health: 20, attack: 5]
+
   def start_link(opts \\ []) do
+    pokemon = opts[:pokemon] || []
+    GenServer.start_link(__MODULE__, pokemon, [])
   end
 
   @doc """
-  Apply the attacker's attack damage to the defender's health.
+  Apply the attacker_pid's attack damage to the defender_pid's health.
 
   ## Examples
 
     With default values.
-      iex> {:ok, attacker} = Pokemon.start_link(pokemon: %Pokemon{name: "Bulbasaur1", type: :grass})
-      iex> {:ok, defender} = Pokemon.start_link(pokemon: %Pokemon{name: "Bulbasaur2", type: :grass})
-      iex> Pokemon.attack(attacker, defender)
+      iex> {:ok, attacker_pid} = Pokemon.start_link(pokemon: %Pokemon{name: "Bulbasaur1", type: :grass})
+      iex> {:ok, defender_pid} = Pokemon.start_link(pokemon: %Pokemon{name: "Bulbasaur2", type: :grass})
+      iex> Pokemon.attack(attacker_pid, defender_pid)
       %Pokemon{name: "Bulbasaur2", type: :grass, health: 15, attack: 5}
-      iex> Pokemon.attack(attacker, defender)
+      iex> Pokemon.attack(attacker_pid, defender_pid)
       %Pokemon{name: "Bulbasaur2", type: :grass, health: 10, attack: 5}
-      iex> Pokemon.attack(attacker, defender)
+      iex> Pokemon.attack(attacker_pid, defender_pid)
       %Pokemon{name: "Bulbasaur2", type: :grass, health: 5, attack: 5}
-      iex> Pokemon.attack(attacker, defender)
+      iex> Pokemon.attack(attacker_pid, defender_pid)
       %Pokemon{name: "Bulbasaur2", type: :grass, health: 0, attack: 5}
-      iex> Pokemon.attack(attacker, defender)
+      iex> Pokemon.attack(attacker_pid, defender_pid)
       %Pokemon{name: "Bulbasaur2", type: :grass, health: 0, attack: 5}
 
     With type advantage
 
-      iex> {:ok, attacker} = Pokemon.start_link(pokemon: %Pokemon{name: "Charmander", type: :fire})
-      iex> {:ok, defender} = Pokemon.start_link(pokemon: %Pokemon{name: "Bulbasaur", type: :grass})
-      iex> Pokemon.attack(attacker, defender)
+      iex> {:ok, attacker_pid} = Pokemon.start_link(pokemon: %Pokemon{name: "Charmander", type: :fire})
+      iex> {:ok, defender_pid} = Pokemon.start_link(pokemon: %Pokemon{name: "Bulbasaur", type: :grass})
+      iex> Pokemon.attack(attacker_pid, defender_pid)
       %Pokemon{name: "Bulbasaur", type: :grass, health: 10, attack: 5}
 
     With type weakness
 
-      iex> {:ok, attacker} = Pokemon.start_link(pokemon: %Pokemon{name: "Bulbasaur", type: :grass})
-      iex> {:ok, defender} = Pokemon.start_link(pokemon: %Pokemon{name: "Charmander", type: :fire})
-      iex> Pokemon.attack(attacker, defender)
+      iex> {:ok, attacker_pid} = Pokemon.start_link(pokemon: %Pokemon{name: "Bulbasaur", type: :grass})
+      iex> {:ok, defender_pid} = Pokemon.start_link(pokemon: %Pokemon{name: "Charmander", type: :fire})
+      iex> Pokemon.attack(attacker_pid, defender_pid)
       %Pokemon{name: "Charmander", type: :fire, health: 17.5, attack: 5}
 
     Ensure you use the attacking pokemon's attack number to apply damage to the defending pokemon's health.
 
-      iex> {:ok, attacker} = Pokemon.start_link(pokemon: %Pokemon{name: "Bulbasaur1", type: :grass, attack: 20})
-      iex> {:ok, defender} = Pokemon.start_link(pokemon: %Pokemon{name: "Bulbasaur2", type: :grass, health: 45})
-      iex> Pokemon.attack(attacker, defender)
+      iex> {:ok, attacker_pid} = Pokemon.start_link(pokemon: %Pokemon{name: "Bulbasaur1", type: :grass, attack: 20})
+      iex> {:ok, defender_pid} = Pokemon.start_link(pokemon: %Pokemon{name: "Bulbasaur2", type: :grass, health: 45})
+      iex> Pokemon.attack(attacker_pid, defender_pid)
       %Pokemon{name: "Bulbasaur2", type: :grass, health: 25, attack: 5}
   """
-  def attack(attacker, defender) do
+  def attack(attacker_pid, defender_pid) do
+    attacker = get(attacker_pid)
+    GenServer.call(defender_pid, {:attacked_by, attacker})
+  end
+
+  def get(pokemon) do
+    GenServer.call(pokemon, :get)
+  end
+
+  @impl true
+  def init(pokemon) do
+    {:ok, pokemon}
+  end
+
+  @impl true
+  def handle_call({:attacked_by, attacker}, _from, state) do
+    updated_health =
+      (state.health - attacker.attack * matchup_bonus(attacker.type, state.type))
+      |> max(0)
+
+    new_state = %{state | health: updated_health}
+    {:reply, new_state, new_state}
+  end
+
+  @impl true
+  def handle_call(:get, _from, state) do
+    {:reply, state, state}
+  end
+
+  defp matchup_bonus(attacker_type, defender_type) do
+    advantageous_matchups = [{:fire, :grass}, {:grass, :water}, {:water, :fire}]
+
+    cond do
+      {attacker_type, defender_type} in advantageous_matchups -> 2
+      {defender_type, attacker_type} in advantageous_matchups -> 0.5
+      attacker_type == defender_type -> 1
+    end
   end
 end
 ```

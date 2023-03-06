@@ -126,6 +126,17 @@ Use the [Tailwind Documentation](https://tailwindcss.com/docs/installation) and 
 
 If you can't figure it out, don't worry, and don't spend too much time on this. Hopefully it will become clear after the rest of the reading.
 
+```elixir
+enum_prices = Enum.map([1, 2, 3], fn x -> x * 10 end)
+```
+
+```elixir
+for_prices =
+  for x <- [1, 2, 3] do
+    x * 10
+  end
+```
+
 ## Background
 
 We're able to set the background color using the `bg-{color}-{shade}` class.
