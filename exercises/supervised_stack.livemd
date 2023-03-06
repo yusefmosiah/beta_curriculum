@@ -30,6 +30,8 @@ defmodule Stack do
 
   @impl true
   def init(state) do
+    x = "x"
+    IO.inspect(binding(), label: "stack started")
     {:ok, state}
   end
 
@@ -116,8 +118,9 @@ You should be able to send a `:pop` message to the `Stack` process and the [Supe
 Uncomment and evaluate the code below to test your supervisor.
 
 ```elixir
-# {:ok, pid} = GenServer.start_link(Stack, [])
 GenServer.call(Stack, :pop)
+
+Supervisor.which_children(supervisor_pid)
 ```
 
 ## Mark As Completed
