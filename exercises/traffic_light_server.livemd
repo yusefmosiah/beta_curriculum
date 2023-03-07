@@ -339,22 +339,25 @@ defmodule TrafficGridServer do
 
   ## Examples
 
-      TrafficGridServer.start_link([])
-      {:ok, pid}
+      {:ok, pid} = TrafficGridServer.start_link([])
+      Process.alive?(pid)
+      true
   """
-  def start_link(_opts) do
-    GenServer.start_link(__MODULE__, [])
+  def start_link(opts) do
+    name = opts[:name] || __MODULE__
+    GenServer.start_link(__MODULE__, [], name: name)
   end
 
   @doc """
   transition the current light state of the next light to transition.
 
   ## Examples
-      
+
+      {:ok, pid} = TrafficGridServer.start_link([])
       TrafficGridServer.transition(pid)
       [:yellow, :green, :green, :green, :green]
   """
-  def transition(grid_pid) do
+  def transition(grid_pid \\ __MODULE__) do
     GenServer.call(grid_pid, :transition)
   end
 
@@ -366,12 +369,12 @@ defmodule TrafficGridServer do
       TrafficGridServer.current_lights(pid)
       [:green, :green, :green, :green, :green]
   """
-  def current_lights(grid_pid) do
+  def current_lights(grid_pid \\ __MODULE__) do
     GenServer.call(grid_pid, :current_lights)
   end
 
   @impl true
-  def init(_opts) do
+  def init(opts) do
     pids =
       for _ <- 1..5 do
         {:ok, pid} = GenServer.start_link(TrafficLightServer, [])
@@ -386,8 +389,8 @@ defmodule TrafficGridServer do
     pid_to_turn = Enum.at(pids, turn)
     TrafficLightServer.transition(pid_to_turn)
     lights = Enum.map(pids, &TrafficLightServer.current_light/1)
-    turn = rem(turn + 1, length(pids))
-    {:reply, lights, {pids, turn}}
+    next_turn = rem(turn + 1, length(pids))
+    {:reply, lights, {pids, next_turn}}
   end
 
   @impl true
@@ -400,24 +403,13 @@ end
 
 ```elixir
 {:ok, pid} = TrafficGridServer.start_link([])
-TrafficGridServer.current_lights(pid)
-Enum.map(1..16, fn _ -> TrafficGridServer.transition(pid) end)
+TrafficGridServer.current_lights() |> IO.inspect()
+Enum.map(1..16, fn _ -> TrafficGridServer.transition() end)
 
 # TrafficGridServer.current_lights(pid)
 
 # {:ok, pid2} = TrafficLightServer.start_link([])
 #  transitioned_light = TrafficLightServer.transition(pid2)
-```
-
-```elixir
-l = [1, 2]
-
-Enum.at(l, 0)
-rem(4 + 1, 5)
-
-pids = 10
-lights = 7
-{pids, lights, turn = 0}
 ```
 
 ## Mark As Completed

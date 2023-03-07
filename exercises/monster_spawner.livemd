@@ -5,7 +5,7 @@ Mix.install([
   {:jason, "~> 1.4"},
   {:kino, "~> 0.8.0", override: true},
   {:youtube, github: "brooklinjazz/youtube"},
-  {:hidden_cell, github: "brooklinjazz/hidden_cell"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
 ])
 ```
 
@@ -112,8 +112,10 @@ defmodule Monster do
       iex> {:ok, pid} = Monster.start_link([])
   """
   def start_link(opts) do
+    name = opts[:name]
     # IO.inspect/2 to observe when a `Monster` process starts.
     IO.inspect(opts, label: "Monster Started")
+    GenServer.start_link(__MODULE__, [], name: name)
   end
 
   @doc """
@@ -129,6 +131,7 @@ defmodule Monster do
       %{health: 70}
   """
   def attack(monster_pid, amount) do
+    GenServer.cast(monster_pid, {:attack, amount})
   end
 
   @doc """
@@ -141,6 +144,7 @@ defmodule Monster do
       100
   """
   def health(monster_pid) do
+    GenServer.call(monster_pid, :health)
   end
 
   @doc """
@@ -154,7 +158,9 @@ defmodule Monster do
       %{health: 100}
   """
   @impl true
-  def init(_opts) do
+  def init(_state) do
+    state = %{health: 100}
+    {:ok, state}
   end
 
   @doc """
@@ -171,10 +177,24 @@ defmodule Monster do
       iex> :sys.get_state(pid)
       %{health: 80}
       iex> GenServer.cast(pid, {:attack, 80})
+      :ok
+      iex> :sys.get_state(pid)
       ** (RuntimeError) dying!
   """
+
+  @impl true
+  def handle_cast({:attack, damage}, state) when damage >= state.health do
+    raise "dying!"
+  end
+
   @impl true
   def handle_cast({:attack, damage}, state) do
+    # if damage > state.health do
+    #   raise "dying!"
+    # end
+
+    new_state = %{state | health: state.health - damage}
+    {:noreply, new_state}
   end
 
   @doc """
@@ -188,8 +208,16 @@ defmodule Monster do
   """
   @impl true
   def handle_call(:health, _from, state) do
+    {:reply, state.health, state}
   end
 end
+```
+
+```elixir
+# {:ok, pid} = GenServer.start_link(Monster, [])
+# :sys.get_state(pid)
+# Monster.attack(pid, 100)
+# :sys.get_state(pid)
 ```
 
 ## Supervisor
@@ -241,7 +269,22 @@ Supervisor.start_link(children, strategy: :one_for_one)
 Enter your solution below.
 
 ```elixir
+children = [
+  %{
+    id: :monster1,
+    start: {Monster, :start_link, [[name: :monster1]]}
+  },
+  %{
+    id: :monster2,
+    start: {Monster, :start_link, [[name: :monster2]]}
+  },
+  %{
+    id: :monster3,
+    start: {Monster, :start_link, [[name: :monster3]]}
+  }
+]
 
+{:ok, supervisor_pid} = Supervisor.start_link(children, strategy: :one_for_one)
 ```
 
 Call `Monster.attack/1` on your monster processes to ensure they are restarted.
@@ -257,7 +300,14 @@ Monster.attack(:monster1, 110)
 </details>
 
 ```elixir
+[
+  {:monster3, pid3, :worker, [Monster]},
+  {:monster2, pid2, :worker, [Monster]},
+  {:monster1, pid1, :worker, [Monster]}
+] = Supervisor.which_children(supervisor_pid)
 
+Monster.attack(pid1, 20)
+:sys.get_state(pid1)
 ```
 
 ## Bonus: Hero
